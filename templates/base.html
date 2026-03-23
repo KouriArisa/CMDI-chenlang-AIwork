@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}待办事项管理{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+<header class="site-header">
+    <div class="container">
+        <h1><a href="{% url 'todos:list' %}">待办事项管理</a></h1>
+        <nav>
+            <a href="{% url 'todos:list' %}">列表</a>
+            <a href="{% url 'todos:create' %}">新建</a>
+            <a href="/admin/">后台</a>
+        </nav>
+    </div>
+</header>
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

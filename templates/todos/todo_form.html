@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}编辑待办{% else %}新建待办{% endif %}{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <h2>{% if form.instance.pk %}编辑待办{% else %}新建待办{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="actions">
+            <button type="submit">保存</button>
+            <a href="{% url 'todos:list' %}">返回列表</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

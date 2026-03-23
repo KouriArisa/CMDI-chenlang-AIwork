@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}删除待办{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <h2>删除待办</h2>
+    <p>确定要删除“{{ object.title }}”吗？该操作不可恢复。</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions">
+            <button type="submit">确认删除</button>
+            <a href="{% url 'todos:detail' object.pk %}">取消</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
