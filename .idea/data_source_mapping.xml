@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$PROJECT_DIR$/schema/create_todo_item.sql" value="cf08d481-3dbc-4b4f-8ce0-7b15261e74ab" />
+  </component>
+</project>
