@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 class TodoStatus(models.TextChoices):
@@ -38,11 +39,11 @@ class TodoItem(models.Model):
         ordering = ["-created_at"]
         constraints = [
             models.CheckConstraint(
-                check=Q(status__in=TodoStatus.values),
+                condition=Q(status__in=TodoStatus.values),
                 name="todo_item_status_valid",
             ),
             models.CheckConstraint(
-                check=Q(priority__in=TodoPriority.values),
+                condition=Q(priority__in=TodoPriority.values),
                 name="todo_item_priority_valid",
             ),
         ]
@@ -53,3 +54,14 @@ class TodoItem(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self._sync_completed_at()
+        return super().save(*args, **kwargs)
+
+    def _sync_completed_at(self):
+        if self.status == TodoStatus.COMPLETED and self.completed_at is None:
+            self.completed_at = timezone.now()
+            return
+        if self.status == TodoStatus.PENDING:
+            self.completed_at = None

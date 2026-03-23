@@ -173,11 +173,11 @@ class TodoItem(models.Model):
         ordering = ["-created_at"]
         constraints = [
             models.CheckConstraint(
-                check=Q(status__in=TodoStatus.values),
+                condition=Q(status__in=TodoStatus.values),
                 name="todo_item_status_valid",
             ),
             models.CheckConstraint(
-                check=Q(priority__in=TodoPriority.values),
+                condition=Q(priority__in=TodoPriority.values),
                 name="todo_item_priority_valid",
             ),
         ]

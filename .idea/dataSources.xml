@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="chenlang_work@localhost" uuid="cf08d481-3dbc-4b4f-8ce0-7b15261e74ab">
+    <data-source source="LOCAL" name="cmdi_project_ai@localhost" uuid="cd71acef-deb2-4f0f-80c0-d861ba11d0b4">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/chenlang_work</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/cmdi_project_ai</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
