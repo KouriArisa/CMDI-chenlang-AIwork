@@ -1,19 +1,13 @@
 from collections.abc import Mapping
-from dataclasses import dataclass
 from typing import Any
 
+from apps.todos.contracts.dto import TodoQuery
+from apps.todos.contracts.repositories import TodoRepository
 from apps.todos.exceptions import TodoNotFoundError
 from apps.todos.models import TodoItem, TodoPriority, TodoStatus
-from apps.todos.repositories.todo_repository import TodoRepository
 
 
-@dataclass(frozen=True, slots=True)
-class TodoQuery:
-    status: str | None = None
-    priority: str | None = None
-
-
-class TodoService:
+class DefaultTodoService:
     def __init__(self, *, repository: TodoRepository) -> None:
         self._repository = repository
 

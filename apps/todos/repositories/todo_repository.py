@@ -1,24 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, Protocol
+from typing import Any
 
+from apps.todos.contracts.repositories import TodoRepository
 from apps.todos.models import TodoItem
 
 
-class TodoRepository(Protocol):
-    def list(self, *, filters: Mapping[str, Any]) -> list[TodoItem]: ...
-
-    def get_by_id(self, *, todo_id: int) -> TodoItem | None: ...
-
-    def create(self, *, data: Mapping[str, Any]) -> TodoItem: ...
-
-    def update(self, *, todo: TodoItem, data: Mapping[str, Any]) -> TodoItem: ...
-
-    def delete(self, *, todo: TodoItem) -> None: ...
-
-
-class DjangoTodoRepository:
+class DjangoTodoRepository(TodoRepository):
     def list(self, *, filters: Mapping[str, Any]) -> list[TodoItem]:
         queryset = TodoItem.objects.all()
         if filters.get("status"):
