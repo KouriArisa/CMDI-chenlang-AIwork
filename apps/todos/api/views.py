@@ -2,7 +2,6 @@ import json
 from http import HTTPStatus
 
 from django import forms
-from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest, QueryDict
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -12,24 +11,12 @@ from apps.todos.api.forms import TodoCreateForm, TodoListQueryForm, TodoUpdateFo
 from apps.todos.api.responses import success_response
 from apps.todos.api.serializers import serialize_todo, serialize_todo_list
 from apps.todos.contracts.dto import TodoQuery
-from apps.todos.contracts.services import TodoService, TodoServiceResolver
 from apps.todos.exceptions import InvalidJSONError, RequestValidationError
+from apps.todos.mixins import TodoServiceResolverMixin
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class JsonApiView(View):
-    service_resolver: TodoServiceResolver | None = None
-    service: TodoService
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
-        self.service = self._resolve_service()
-        return super().dispatch(request, *args, **kwargs)
-
-    def _resolve_service(self) -> TodoService:
-        if self.service_resolver is None:
-            raise ImproperlyConfigured("Todo API service resolver is not configured.")
-        return self.service_resolver()
-
+class JsonApiView(TodoServiceResolverMixin, View):
     def parse_json_body(self, request: HttpRequest) -> dict[str, object]:
         if not request.body:
             return {}

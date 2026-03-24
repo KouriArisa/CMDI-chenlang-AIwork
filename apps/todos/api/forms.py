@@ -26,7 +26,11 @@ class TodoCreateForm(forms.Form):
         )
 
     def clean_status(self) -> str:
-        return _validate_optional_choice(data=self.data, name="status", value=self.cleaned_data["status"])
+        return _validate_optional_choice(
+            data=self.data,
+            name="status",
+            value=self.cleaned_data["status"],
+        )
 
     def clean_priority(self) -> str:
         return _validate_optional_choice(
@@ -63,7 +67,11 @@ class TodoUpdateForm(forms.Form):
         )
 
     def clean_status(self) -> str:
-        return _validate_optional_choice(data=self.data, name="status", value=self.cleaned_data["status"])
+        return _validate_optional_choice(
+            data=self.data,
+            name="status",
+            value=self.cleaned_data["status"],
+        )
 
     def clean_priority(self) -> str:
         return _validate_optional_choice(

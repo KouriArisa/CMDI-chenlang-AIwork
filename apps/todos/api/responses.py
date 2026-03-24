@@ -37,7 +37,11 @@ def success_response(
         message=message,
         data=data,
     )
-    return JsonResponse(payload, status=status, json_dumps_params={"ensure_ascii": False})
+    return JsonResponse(
+        payload,
+        status=status,
+        json_dumps_params={"ensure_ascii": False},
+    )
 
 
 def error_response(
@@ -54,4 +58,8 @@ def error_response(
         data=None,
         errors=errors,
     )
-    return JsonResponse(payload, status=status, json_dumps_params={"ensure_ascii": False})
+    return JsonResponse(
+        payload,
+        status=status,
+        json_dumps_params={"ensure_ascii": False},
+    )

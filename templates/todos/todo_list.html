@@ -22,19 +22,19 @@
     <tbody>
     {% for todo in todos %}
     <tr>
-        <td><a href="{% url 'todos:detail' todo.pk %}">{{ todo.title }}</a></td>
-        <td>{{ todo.get_status_display }}</td>
-        <td>{{ todo.get_priority_display }}</td>
+        <td><a href="{% url 'todos:detail' todo.id %}">{{ todo.title }}</a></td>
+        <td>{{ todo.status_label }}</td>
+        <td>{{ todo.priority_label }}</td>
         <td>{{ todo.due_date|default:"-" }}</td>
         <td class="actions">
-            <a href="{% url 'todos:edit' todo.pk %}">编辑</a>
-            <form action="{% url 'todos:toggle' todo.pk %}" method="post">
+            <a href="{% url 'todos:edit' todo.id %}">编辑</a>
+            <form action="{% url 'todos:toggle' todo.id %}" method="post">
                 {% csrf_token %}
                 <button type="submit">
                     {% if todo.status == "pending" %}标记完成{% else %}标记未完成{% endif %}
                 </button>
             </form>
-            <a href="{% url 'todos:delete' todo.pk %}">删除</a>
+            <a href="{% url 'todos:delete' todo.id %}">删除</a>
         </td>
     </tr>
     {% endfor %}

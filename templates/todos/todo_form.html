@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}{% if form.instance.pk %}编辑待办{% else %}新建待办{% endif %}{% endblock %}
+{% block title %}{% if is_edit_mode %}编辑待办{% else %}新建待办{% endif %}{% endblock %}
 
 {% block content %}
 <section class="form-card">
-    <h2>{% if form.instance.pk %}编辑待办{% else %}新建待办{% endif %}</h2>
+    <h2>{% if is_edit_mode %}编辑待办{% else %}新建待办{% endif %}</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

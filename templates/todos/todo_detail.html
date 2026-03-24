@@ -5,14 +5,14 @@
 {% block content %}
 <section class="detail-card">
     <h2>{{ todo.title }}</h2>
-    <p><strong>状态：</strong>{{ todo.get_status_display }}</p>
-    <p><strong>优先级：</strong>{{ todo.get_priority_display }}</p>
+    <p><strong>状态：</strong>{{ todo.status_label }}</p>
+    <p><strong>优先级：</strong>{{ todo.priority_label }}</p>
     <p><strong>截止日期：</strong>{{ todo.due_date|default:"-" }}</p>
     <p><strong>完成时间：</strong>{{ todo.completed_at|default:"-" }}</p>
     <p><strong>描述：</strong>{{ todo.description|default:"暂无描述" }}</p>
     <div class="actions">
-        <a href="{% url 'todos:edit' todo.pk %}">编辑</a>
-        <a href="{% url 'todos:delete' todo.pk %}">删除</a>
+        <a href="{% url 'todos:edit' todo.id %}">编辑</a>
+        <a href="{% url 'todos:delete' todo.id %}">删除</a>
         <a href="{% url 'todos:list' %}">返回列表</a>
     </div>
 </section>

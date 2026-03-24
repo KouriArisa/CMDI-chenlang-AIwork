@@ -1,62 +1,101 @@
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.http import Http404, HttpRequest, HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views import View
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import FormView, TemplateView
 
-from apps.todos.forms import TodoItemForm
-from apps.todos.models import TodoItem, TodoStatus
+from apps.todos.contracts.dto import TodoData, TodoQuery
+from apps.todos.exceptions import TodoNotFoundError
+from apps.todos.forms import TodoForm
+from apps.todos.mixins import TodoServiceResolverMixin
 
 
-class TodoListView(ListView):
-    model = TodoItem
+class TodoLookupMixin:
+    def get_todo(self) -> TodoData:
+        todo_id = self.kwargs["pk"]
+        try:
+            return self.service.get_todo(todo_id=todo_id)
+        except TodoNotFoundError as exc:
+            raise Http404(str(exc)) from exc
+
+
+class TodoListView(TodoServiceResolverMixin, TemplateView):
     template_name = "todos/todo_list.html"
-    context_object_name = "todos"
+
+    def get_context_data(self, **kwargs) -> dict[str, object]:
+        context = super().get_context_data(**kwargs)
+        context["todos"] = self.service.list_todos(query=TodoQuery())
+        return context
 
 
-class TodoDetailView(DetailView):
-    model = TodoItem
+class TodoDetailView(TodoServiceResolverMixin, TodoLookupMixin, TemplateView):
     template_name = "todos/todo_detail.html"
-    context_object_name = "todo"
+
+    def get_context_data(self, **kwargs) -> dict[str, object]:
+        context = super().get_context_data(**kwargs)
+        context["todo"] = self.get_todo()
+        return context
 
 
-class TodoCreateView(CreateView):
-    model = TodoItem
-    form_class = TodoItemForm
+class TodoCreateView(TodoServiceResolverMixin, FormView):
     template_name = "todos/todo_form.html"
-    success_url = reverse_lazy("todos:list")
+    form_class = TodoForm
 
+    def get_context_data(self, **kwargs) -> dict[str, object]:
+        context = super().get_context_data(**kwargs)
+        context["is_edit_mode"] = False
+        return context
 
-class TodoUpdateView(UpdateView):
-    model = TodoItem
-    form_class = TodoItemForm
-    template_name = "todos/todo_form.html"
-
-    def get_success_url(self) -> str:
-        return reverse_lazy("todos:detail", kwargs={"pk": self.object.pk})
-
-
-class TodoDeleteView(DeleteView):
-    model = TodoItem
-    template_name = "todos/todo_confirm_delete.html"
-    success_url = reverse_lazy("todos:list")
-
-
-class TodoToggleStatusView(View):
-    http_method_names = ["post"]
-
-    def post(self, request, pk):
-        todo = get_object_or_404(TodoItem, pk=pk)
-        todo.status = self._get_next_status(todo.status)
-        todo.save(update_fields=["status", "completed_at", "updated_at"])
+    def form_valid(self, form: TodoForm) -> HttpResponse:
+        self.service.create_todo(payload=form.cleaned_data)
         return redirect("todos:list")
 
-    def _get_next_status(self, current_status: str) -> str:
-        if current_status == TodoStatus.PENDING:
-            return TodoStatus.COMPLETED
-        return TodoStatus.PENDING
+
+class TodoUpdateView(TodoServiceResolverMixin, TodoLookupMixin, FormView):
+    template_name = "todos/todo_form.html"
+    form_class = TodoForm
+
+    def get_initial(self) -> dict[str, object]:
+        todo = self.get_todo()
+        return {
+            "title": todo.title,
+            "description": todo.description,
+            "status": todo.status,
+            "priority": todo.priority,
+            "due_date": todo.due_date,
+        }
+
+    def get_context_data(self, **kwargs) -> dict[str, object]:
+        context = super().get_context_data(**kwargs)
+        context["is_edit_mode"] = True
+        context["todo"] = self.get_todo()
+        return context
+
+    def form_valid(self, form: TodoForm) -> HttpResponse:
+        todo = self.service.update_todo(
+            todo_id=self.kwargs["pk"],
+            payload=form.cleaned_data,
+        )
+        return redirect("todos:detail", pk=todo.id)
+
+
+class TodoDeleteView(TodoServiceResolverMixin, TodoLookupMixin, TemplateView):
+    template_name = "todos/todo_confirm_delete.html"
+
+    def get_context_data(self, **kwargs) -> dict[str, object]:
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_todo()
+        return context
+
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.service.delete_todo(todo_id=self.kwargs["pk"])
+        return redirect("todos:list")
+
+
+class TodoToggleStatusView(TodoServiceResolverMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request: HttpRequest, pk: int) -> HttpResponse:
+        self.service.toggle_status(todo_id=pk)
+        next_url = reverse("todos:list")
+        return redirect(next_url)

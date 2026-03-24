@@ -1,15 +1,15 @@
-from apps.todos.models import TodoItem
+from apps.todos.contracts.dto import TodoData
 
 
-def serialize_todo(todo: TodoItem) -> dict[str, object]:
+def serialize_todo(todo: TodoData) -> dict[str, object]:
     return {
         "id": todo.id,
         "title": todo.title,
         "description": todo.description,
         "status": todo.status,
-        "status_label": todo.get_status_display(),
+        "status_label": todo.status_label,
         "priority": todo.priority,
-        "priority_label": todo.get_priority_display(),
+        "priority_label": todo.priority_label,
         "due_date": _serialize_date(todo.due_date),
         "completed_at": _serialize_datetime(todo.completed_at),
         "created_at": _serialize_datetime(todo.created_at),
@@ -17,7 +17,7 @@ def serialize_todo(todo: TodoItem) -> dict[str, object]:
     }
 
 
-def serialize_todo_list(todos: list[TodoItem]) -> list[dict[str, object]]:
+def serialize_todo_list(todos: list[TodoData]) -> list[dict[str, object]]:
     return [serialize_todo(todo) for todo in todos]
 
 
