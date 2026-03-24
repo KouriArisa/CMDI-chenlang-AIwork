@@ -3,15 +3,41 @@
 {% block title %}{% if is_edit_mode %}编辑待办{% else %}新建待办{% endif %}{% endblock %}
 
 {% block content %}
-<section class="form-card">
-    <h2>{% if is_edit_mode %}编辑待办{% else %}新建待办{% endif %}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="actions">
-            <button type="submit">保存</button>
-            <a href="{% url 'todos:list' %}">返回列表</a>
-        </div>
-    </form>
+<section class="editor-layout">
+    <article class="form-card form-panel">
+        <p class="eyebrow">{% if is_edit_mode %}EDIT TASK{% else %}CREATE TASK{% endif %}</p>
+        <h2>{% if is_edit_mode %}调整任务信息{% else %}录入一条新的待办{% endif %}</h2>
+        <p class="panel-copy">
+            用标题定义任务边界，用优先级表达执行顺序，用截止日期约束节奏。
+        </p>
+        <form method="post" class="todo-form">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="field-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="field-help">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <p class="field-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <div class="form-actions">
+                <button type="submit">保存任务</button>
+                <a class="ghost-button" href="{% url 'todos:list' %}">返回列表</a>
+            </div>
+        </form>
+    </article>
+    <aside class="detail-card note-panel">
+        <p class="eyebrow">QUICK GUIDE</p>
+        <h3>填写建议</h3>
+        <ul class="note-list">
+            <li>标题尽量使用“动词 + 目标”的方式书写。</li>
+            <li>优先级用于表达执行顺序，不建议滥用高优先级。</li>
+            <li>截止日期留空也可以，适合长期事项或待确认任务。</li>
+        </ul>
+    </aside>
 </section>
 {% endblock %}

@@ -3,15 +3,20 @@
 {% block title %}删除待办{% endblock %}
 
 {% block content %}
-<section class="form-card">
-    <h2>删除待办</h2>
-    <p>确定要删除“{{ object.title }}”吗？该操作不可恢复。</p>
-    <form method="post">
-        {% csrf_token %}
-        <div class="actions">
-            <button type="submit">确认删除</button>
-            <a href="{% url 'todos:detail' object.id %}">取消</a>
-        </div>
-    </form>
+<section class="delete-layout">
+    <article class="detail-card danger-card">
+        <p class="eyebrow">DELETE TASK</p>
+        <h2>确认删除这条任务？</h2>
+        <p class="panel-copy">
+            你即将删除“{{ object.title }}”。删除后将无法恢复，请确认这是你想要的操作。
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="danger-button">确认删除</button>
+                <a class="ghost-button" href="{% url 'todos:detail' object.id %}">取消</a>
+            </div>
+        </form>
+    </article>
 </section>
 {% endblock %}

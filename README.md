@@ -64,7 +64,17 @@ python manage.py runserver
 
 - 页面端：`http://127.0.0.1:8000/todos/`
 - API：`http://127.0.0.1:8000/api/todos/`
+- 健康检查：`http://127.0.0.1:8000/health/`
 - 管理后台：`http://127.0.0.1:8000/admin/`
+
+## Docker 启动
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+更多部署细节见 `docs/DEPLOY.md`。
 
 ## 目录结构
 

@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: django-todo-app:latest
+    env_file:
+      - .env
+    environment:
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-config.settings.local}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-docker-dev-secret-key}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost}
+      PORT: ${PORT:-8000}
+      GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
+      GUNICORN_TIMEOUT: ${GUNICORN_TIMEOUT:-60}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-todo_app}
+      MYSQL_USER: ${MYSQL_USER:-todo_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-todo-password}
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+    ports:
+      - "${PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.4
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-todo_app}
+      MYSQL_USER: ${MYSQL_USER:-todo_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-todo-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-todo-root-password}
+    ports:
+      - "${MYSQL_EXPOSE_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

@@ -1,0 +1,187 @@
+.hero-panel {
+    grid-template-columns: 1.3fr 1fr;
+    padding: 28px;
+    margin-bottom: 22px;
+}
+
+.hero-copy h2,
+.detail-hero h2,
+.form-panel h2,
+.danger-card h2 {
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 3vw, 3.2rem);
+    line-height: 1.05;
+}
+
+.stat-grid,
+.todo-grid,
+.info-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stat-card,
+.info-tile,
+.todo-card {
+    padding: 18px;
+    border-radius: 24px;
+    background: var(--surface-strong);
+    border: 1px solid var(--line);
+}
+
+.stat-wide {
+    grid-column: 1 / -1;
+}
+
+.stat-card span,
+.info-tile span {
+    display: block;
+    font-size: 0.88rem;
+    margin-bottom: 10px;
+}
+
+.stat-card strong,
+.info-tile strong {
+    font-size: 2rem;
+}
+
+.tone-gold {
+    background: linear-gradient(160deg, #fff2d5, #fff9ee);
+}
+
+.tone-ink {
+    background: linear-gradient(160deg, #e6eef8, #f8fbff);
+}
+
+.tone-green {
+    background: linear-gradient(160deg, #ddf4e8, #f7fff8);
+}
+
+.tone-coral {
+    background: linear-gradient(160deg, #ffe2da, #fff8f6);
+}
+
+.tone-slate {
+    background: linear-gradient(160deg, #edf0f4, #fbfcfd);
+}
+
+.todo-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.todo-card.is-complete {
+    opacity: 0.88;
+}
+
+.todo-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.todo-card h3,
+.detail-card h3 {
+    margin: 0;
+    font-size: 1.35rem;
+}
+
+.todo-kicker {
+    margin: 0 0 8px;
+    font-size: 0.86rem;
+    color: var(--secondary);
+}
+
+.meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    font-size: 0.9rem;
+}
+
+.detail-layout,
+.editor-layout {
+    grid-template-columns: 1.4fr 1fr;
+}
+
+.info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.spotlight-card {
+    background: linear-gradient(180deg, rgba(39, 68, 107, 0.06), rgba(255, 255, 255, 0.8));
+}
+
+.todo-form,
+.note-list {
+    display: grid;
+    gap: 16px;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+}
+
+.field-group label {
+    font-weight: 700;
+}
+
+.field-group input,
+.field-group textarea,
+.field-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(39, 68, 107, 0.15);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.field-group textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.field-error {
+    margin: 0;
+    color: var(--danger);
+    font-size: 0.88rem;
+}
+
+.note-panel,
+.danger-card {
+    align-self: start;
+}
+
+.delete-layout {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.inline-form {
+    display: inline-flex;
+}
+
+.empty-state {
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .hero-panel,
+    .detail-layout,
+    .editor-layout,
+    .stat-grid,
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .todo-card-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

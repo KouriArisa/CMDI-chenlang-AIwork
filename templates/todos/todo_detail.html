@@ -3,17 +3,51 @@
 {% block title %}待办详情{% endblock %}
 
 {% block content %}
-<section class="detail-card">
-    <h2>{{ todo.title }}</h2>
-    <p><strong>状态：</strong>{{ todo.status_label }}</p>
-    <p><strong>优先级：</strong>{{ todo.priority_label }}</p>
-    <p><strong>截止日期：</strong>{{ todo.due_date|default:"-" }}</p>
-    <p><strong>完成时间：</strong>{{ todo.completed_at|default:"-" }}</p>
-    <p><strong>描述：</strong>{{ todo.description|default:"暂无描述" }}</p>
-    <div class="actions">
-        <a href="{% url 'todos:edit' todo.id %}">编辑</a>
-        <a href="{% url 'todos:delete' todo.id %}">删除</a>
-        <a href="{% url 'todos:list' %}">返回列表</a>
+<section class="detail-hero">
+    <div>
+        <p class="eyebrow">TASK DETAIL</p>
+        <h2>{{ todo.title }}</h2>
+        <p class="hero-text">{{ todo.description|default:"这条任务还没有补充说明。" }}</p>
     </div>
+    <div class="badge-group">
+        <span class="pill status-{{ todo.status }}">{{ todo.status_label }}</span>
+        <span class="pill priority-{{ todo.priority }}">{{ todo.priority_label }}</span>
+    </div>
+</section>
+
+<section class="detail-layout">
+    <article class="detail-card spotlight-card">
+        <div class="info-grid">
+            <div class="info-tile">
+                <span>截止日期</span>
+                <strong>{{ todo.due_date|default:"未设置" }}</strong>
+            </div>
+            <div class="info-tile">
+                <span>完成时间</span>
+                <strong>{{ todo.completed_at|default:"尚未完成" }}</strong>
+            </div>
+            <div class="info-tile">
+                <span>创建时间</span>
+                <strong>{{ todo.created_at|date:"Y-m-d H:i" }}</strong>
+            </div>
+            <div class="info-tile">
+                <span>更新时间</span>
+                <strong>{{ todo.updated_at|date:"Y-m-d H:i" }}</strong>
+            </div>
+        </div>
+    </article>
+    <article class="detail-card">
+        <h3>下一步操作</h3>
+        <p class="panel-copy">你可以继续更新内容、切换状态，或者删除这条任务。</p>
+        <div class="card-actions">
+            <a class="button" href="{% url 'todos:edit' todo.id %}">编辑任务</a>
+            <a class="ghost-button danger-link" href="{% url 'todos:delete' todo.id %}">删除任务</a>
+            <a class="ghost-button" href="{% url 'todos:list' %}">返回列表</a>
+        </div>
+    </article>
+    <article class="detail-card">
+        <h3>任务说明</h3>
+        <p class="panel-copy">{{ todo.description|default:"这条任务目前还没有更详细的上下文描述。" }}</p>
+    </article>
 </section>
 {% endblock %}

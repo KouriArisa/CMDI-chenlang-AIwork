@@ -3,44 +3,100 @@
 {% block title %}待办列表{% endblock %}
 
 {% block content %}
-<section class="page-header">
-    <h2>待办列表</h2>
-    <a class="button" href="{% url 'todos:create' %}">新增待办</a>
+<section class="hero-panel">
+    <div class="hero-copy">
+        <p class="eyebrow">TASK CONTROL BOARD</p>
+        <h2>把零散待办整理成一套清晰的执行面板。</h2>
+        <p class="hero-text">
+            这里展示的是一个可直接开发、测试、部署的 Django 待办应用骨架。
+            当前日期：{{ today|date:"Y-m-d" }}。
+        </p>
+        <div class="hero-actions">
+            <a class="button" href="{% url 'todos:create' %}">新增任务</a>
+            <a class="ghost-button" href="/api/todos/">查看 API</a>
+        </div>
+    </div>
+    <div class="stat-grid">
+        <article class="stat-card tone-gold">
+            <span>任务总数</span>
+            <strong>{{ summary.total }}</strong>
+            <small>当前项目中的全部待办</small>
+        </article>
+        <article class="stat-card tone-ink">
+            <span>待处理</span>
+            <strong>{{ summary.pending }}</strong>
+            <small>仍在推进中的事项</small>
+        </article>
+        <article class="stat-card tone-green">
+            <span>已完成</span>
+            <strong>{{ summary.completed }}</strong>
+            <small>已经收口的任务</small>
+        </article>
+        <article class="stat-card tone-coral">
+            <span>高优先级</span>
+            <strong>{{ summary.high_priority }}</strong>
+            <small>需要优先关注</small>
+        </article>
+        <article class="stat-card tone-slate stat-wide">
+            <span>三天内到期</span>
+            <strong>{{ summary.due_soon }}</strong>
+            <small>适合优先排期处理</small>
+        </article>
+    </div>
 </section>
 
 {% if todos %}
-<table class="data-table">
-    <thead>
-    <tr>
-        <th>标题</th>
-        <th>状态</th>
-        <th>优先级</th>
-        <th>截止日期</th>
-        <th>操作</th>
-    </tr>
-    </thead>
-    <tbody>
+<section class="todo-grid">
     {% for todo in todos %}
-    <tr>
-        <td><a href="{% url 'todos:detail' todo.id %}">{{ todo.title }}</a></td>
-        <td>{{ todo.status_label }}</td>
-        <td>{{ todo.priority_label }}</td>
-        <td>{{ todo.due_date|default:"-" }}</td>
-        <td class="actions">
-            <a href="{% url 'todos:edit' todo.id %}">编辑</a>
-            <form action="{% url 'todos:toggle' todo.id %}" method="post">
+    <article class="todo-card {% if todo.status == 'completed' %}is-complete{% endif %}">
+        <div class="todo-card-head">
+            <div>
+                <p class="todo-kicker">
+                    {% if todo.due_date %}
+                    截止 {{ todo.due_date|date:"Y-m-d" }}
+                    {% else %}
+                    未设置截止日期
+                    {% endif %}
+                </p>
+                <h3><a href="{% url 'todos:detail' todo.id %}">{{ todo.title }}</a></h3>
+            </div>
+            <div class="badge-group">
+                <span class="pill status-{{ todo.status }}">{{ todo.status_label }}</span>
+                <span class="pill priority-{{ todo.priority }}">{{ todo.priority_label }}</span>
+            </div>
+        </div>
+        <p class="todo-description">
+            {{ todo.description|default:"这条任务还没有补充说明。"|truncatechars:88 }}
+        </p>
+        <div class="meta-row">
+            <span>创建于 {{ todo.created_at|date:"Y-m-d H:i" }}</span>
+            <span>
+                {% if todo.completed_at %}
+                完成于 {{ todo.completed_at|date:"Y-m-d H:i" }}
+                {% else %}
+                尚未完成
+                {% endif %}
+            </span>
+        </div>
+        <div class="card-actions">
+            <a class="ghost-button" href="{% url 'todos:edit' todo.id %}">编辑</a>
+            <form action="{% url 'todos:toggle' todo.id %}" method="post" class="inline-form">
                 {% csrf_token %}
                 <button type="submit">
                     {% if todo.status == "pending" %}标记完成{% else %}标记未完成{% endif %}
                 </button>
             </form>
-            <a href="{% url 'todos:delete' todo.id %}">删除</a>
-        </td>
-    </tr>
+            <a class="ghost-button danger-link" href="{% url 'todos:delete' todo.id %}">删除</a>
+        </div>
+    </article>
     {% endfor %}
-    </tbody>
-</table>
+</section>
 {% else %}
-<p class="empty-state">当前还没有待办事项，先创建第一条吧。</p>
+<section class="empty-state">
+    <p class="eyebrow">EMPTY BOARD</p>
+    <h2>当前还没有待办事项。</h2>
+    <p>从一条明确的任务开始，把项目节奏建立起来。</p>
+    <a class="button" href="{% url 'todos:create' %}">创建第一条任务</a>
+</section>
 {% endif %}
 {% endblock %}

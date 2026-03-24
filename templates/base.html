@@ -4,22 +4,39 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}待办事项管理{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <title>{% block title %}CMDI待办事项管理{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 </head>
 <body>
-<header class="site-header">
-    <div class="container">
-        <h1><a href="{% url 'todos:list' %}">待办事项管理</a></h1>
-        <nav>
-            <a href="{% url 'todos:list' %}">列表</a>
-            <a href="{% url 'todos:create' %}">新建</a>
-            <a href="/admin/">后台</a>
-        </nav>
-    </div>
-</header>
-<main class="container">
-    {% block content %}{% endblock %}
-</main>
+<div class="backdrop backdrop-one"></div>
+<div class="backdrop backdrop-two"></div>
+<div class="site-shell">
+    <header class="site-header">
+        <div class="container nav-surface">
+            <a class="brand" href="{% url 'todos:list' %}">
+                <span class="brand-mark">TD</span>
+                <span class="brand-copy">
+                    <strong>Todo Control Deck</strong>
+                    <small>Django · MySQL · Workflow</small>
+                </span>
+            </a>
+            <nav class="site-nav">
+                <a class="nav-link" href="{% url 'todos:list' %}">任务总览</a>
+                <a class="nav-link" href="{% url 'todos:create' %}">新建任务</a>
+                <a class="nav-link" href="/admin/">后台管理</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container site-main">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <div class="container footer-surface">
+            <p>Todo Control Deck · 让简单 CRUD 也有清晰节奏。</p>
+            <a href="{% url 'health' %}">系统健康检查</a>
+        </div>
+    </footer>
+</div>
 </body>
 </html>
