@@ -1,0 +1,16 @@
+from collections.abc import Mapping
+from typing import Any, Protocol
+
+from apps.todos.models import TodoItem
+
+
+class TodoRepository(Protocol):
+    def list(self, *, filters: Mapping[str, Any]) -> list[TodoItem]: ...
+
+    def get_by_id(self, *, todo_id: int) -> TodoItem | None: ...
+
+    def create(self, *, data: Mapping[str, Any]) -> TodoItem: ...
+
+    def update(self, *, todo: TodoItem, data: Mapping[str, Any]) -> TodoItem: ...
+
+    def delete(self, *, todo: TodoItem) -> None: ...

@@ -1,5 +1,4 @@
 import json
-from collections.abc import Callable
 from http import HTTPStatus
 
 from django import forms
