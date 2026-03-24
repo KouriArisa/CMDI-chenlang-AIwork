@@ -18,12 +18,12 @@ class DefaultTodoService:
         return self._get_or_raise(todo_id=todo_id)
 
     def create_todo(self, *, payload: Mapping[str, Any]) -> TodoData:
-        data = self._build_create_data(payload=payload)
-        return self._repository.create(data=data)
+        attributes = self._build_create_attributes(payload=payload)
+        return self._repository.create(attributes=attributes)
 
     def update_todo(self, *, todo_id: int, payload: Mapping[str, Any]) -> TodoData:
         self._get_or_raise(todo_id=todo_id)
-        return self._repository.update(todo_id=todo_id, data=dict(payload))
+        return self._repository.update(todo_id=todo_id, changes=dict(payload))
 
     def delete_todo(self, *, todo_id: int) -> None:
         self._get_or_raise(todo_id=todo_id)
@@ -32,14 +32,16 @@ class DefaultTodoService:
     def toggle_status(self, *, todo_id: int) -> TodoData:
         todo = self._get_or_raise(todo_id=todo_id)
         next_status = self._get_next_status(current_status=todo.status)
-        return self._repository.update(todo_id=todo_id, data={"status": next_status})
+        return self._repository.update(todo_id=todo_id, changes={"status": next_status})
 
-    def _build_create_data(self, *, payload: Mapping[str, Any]) -> dict[str, Any]:
-        data = dict(payload)
-        data.setdefault("description", "")
-        data["status"] = data.get("status") or TodoStatus.PENDING
-        data["priority"] = data.get("priority") or TodoPriority.MEDIUM
-        return data
+    def _build_create_attributes(self, *, payload: Mapping[str, Any]) -> dict[str, Any]:
+        attributes = dict(payload)
+        attributes.setdefault("description", "")
+        attributes["status"] = attributes.get("status") or TodoStatus.PENDING
+        attributes["priority"] = (
+            attributes.get("priority") or TodoPriority.MEDIUM
+        )
+        return attributes
 
     def _get_or_raise(self, *, todo_id: int) -> TodoData:
         todo = self._repository.get_by_id(todo_id=todo_id)

@@ -19,14 +19,14 @@ class DjangoTodoRepository(TodoRepository):
             return None
         return self._to_data(todo)
 
-    def create(self, *, data: Mapping[str, Any]) -> TodoData:
-        todo = TodoItem.objects.create(**dict(data))
+    def create(self, *, attributes: Mapping[str, Any]) -> TodoData:
+        todo = TodoItem.objects.create(**dict(attributes))
         return self._to_data(todo)
 
-    def update(self, *, todo_id: int, data: Mapping[str, Any]) -> TodoData:
+    def update(self, *, todo_id: int, changes: Mapping[str, Any]) -> TodoData:
         todo = TodoItem.objects.get(pk=todo_id)
         updated_fields = []
-        for field_name, field_value in data.items():
+        for field_name, field_value in changes.items():
             setattr(todo, field_name, field_value)
             updated_fields.append(field_name)
         todo.save(update_fields=self._build_update_fields(updated_fields=updated_fields))

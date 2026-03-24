@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -11,7 +13,8 @@ from apps.todos.mixins import TodoServiceResolverMixin
 
 
 class TodoLookupMixin:
-    def get_todo(self) -> TodoData:
+    @cached_property
+    def todo(self) -> TodoData:
         todo_id = self.kwargs["pk"]
         try:
             return self.service.get_todo(todo_id=todo_id)
@@ -33,7 +36,7 @@ class TodoDetailView(TodoServiceResolverMixin, TodoLookupMixin, TemplateView):
 
     def get_context_data(self, **kwargs) -> dict[str, object]:
         context = super().get_context_data(**kwargs)
-        context["todo"] = self.get_todo()
+        context["todo"] = self.todo
         return context
 
 
@@ -56,19 +59,18 @@ class TodoUpdateView(TodoServiceResolverMixin, TodoLookupMixin, FormView):
     form_class = TodoForm
 
     def get_initial(self) -> dict[str, object]:
-        todo = self.get_todo()
         return {
-            "title": todo.title,
-            "description": todo.description,
-            "status": todo.status,
-            "priority": todo.priority,
-            "due_date": todo.due_date,
+            "title": self.todo.title,
+            "description": self.todo.description,
+            "status": self.todo.status,
+            "priority": self.todo.priority,
+            "due_date": self.todo.due_date,
         }
 
     def get_context_data(self, **kwargs) -> dict[str, object]:
         context = super().get_context_data(**kwargs)
         context["is_edit_mode"] = True
-        context["todo"] = self.get_todo()
+        context["todo"] = self.todo
         return context
 
     def form_valid(self, form: TodoForm) -> HttpResponse:
@@ -84,7 +86,7 @@ class TodoDeleteView(TodoServiceResolverMixin, TodoLookupMixin, TemplateView):
 
     def get_context_data(self, **kwargs) -> dict[str, object]:
         context = super().get_context_data(**kwargs)
-        context["object"] = self.get_todo()
+        context["object"] = self.todo
         return context
 
     def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:

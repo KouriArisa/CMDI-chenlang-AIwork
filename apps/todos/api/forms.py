@@ -2,8 +2,10 @@ from django import forms
 
 from apps.todos.models import TodoPriority, TodoStatus
 
-ALL_PRIORITY_CHOICES = [("", "全部"), *TodoPriority.choices]
-ALL_STATUS_CHOICES = [("", "全部"), *TodoStatus.choices]
+EMPTY_CHOICE = ("", "全部")
+DATE_INPUT_FORMAT = "%Y-%m-%d"
+ALL_PRIORITY_CHOICES = [EMPTY_CHOICE, *TodoPriority.choices]
+ALL_STATUS_CHOICES = [EMPTY_CHOICE, *TodoStatus.choices]
 
 
 class TodoListQueryForm(forms.Form):
@@ -11,41 +13,40 @@ class TodoListQueryForm(forms.Form):
     priority = forms.ChoiceField(required=False, choices=ALL_PRIORITY_CHOICES)
 
 
-class TodoCreateForm(forms.Form):
-    title = forms.CharField(max_length=100)
+class BaseTodoPayloadForm(forms.Form):
     description = forms.CharField(required=False)
     status = forms.ChoiceField(required=False, choices=TodoStatus.choices)
     priority = forms.ChoiceField(required=False, choices=TodoPriority.choices)
-    due_date = forms.DateField(required=False, input_formats=["%Y-%m-%d"])
+    due_date = forms.DateField(required=False, input_formats=[DATE_INPUT_FORMAT])
 
     def clean_description(self) -> str:
         return _validate_nullable_text(
-            data=self.data,
-            name="description",
+            submitted_data=self.data,
+            field_name="description",
             value=self.cleaned_data["description"],
         )
 
     def clean_status(self) -> str:
         return _validate_optional_choice(
-            data=self.data,
-            name="status",
+            submitted_data=self.data,
+            field_name="status",
             value=self.cleaned_data["status"],
         )
 
     def clean_priority(self) -> str:
         return _validate_optional_choice(
-            data=self.data,
-            name="priority",
+            submitted_data=self.data,
+            field_name="priority",
             value=self.cleaned_data["priority"],
         )
 
 
-class TodoUpdateForm(forms.Form):
+class TodoCreateForm(BaseTodoPayloadForm):
+    title = forms.CharField(max_length=100)
+
+
+class TodoUpdateForm(BaseTodoPayloadForm):
     title = forms.CharField(max_length=100, required=False)
-    description = forms.CharField(required=False)
-    status = forms.ChoiceField(required=False, choices=TodoStatus.choices)
-    priority = forms.ChoiceField(required=False, choices=TodoPriority.choices)
-    due_date = forms.DateField(required=False, input_formats=["%Y-%m-%d"])
 
     def clean(self) -> dict[str, object]:
         cleaned_data = super().clean()
@@ -61,43 +62,29 @@ class TodoUpdateForm(forms.Form):
 
     def clean_description(self) -> str:
         return _validate_nullable_text(
-            data=self.data,
-            name="description",
+            submitted_data=self.data,
+            field_name="description",
             value=self.cleaned_data["description"],
-        )
-
-    def clean_status(self) -> str:
-        return _validate_optional_choice(
-            data=self.data,
-            name="status",
-            value=self.cleaned_data["status"],
-        )
-
-    def clean_priority(self) -> str:
-        return _validate_optional_choice(
-            data=self.data,
-            name="priority",
-            value=self.cleaned_data["priority"],
         )
 
 
 def _validate_nullable_text(
     *,
-    data: dict[str, object],
-    name: str,
+    submitted_data: dict[str, object],
+    field_name: str,
     value: str,
 ) -> str:
-    if name in data and data[name] is None:
-        raise forms.ValidationError(f"{name} 不能为 null。")
+    if field_name in submitted_data and submitted_data[field_name] is None:
+        raise forms.ValidationError(f"{field_name} 不能为 null。")
     return value
 
 
 def _validate_optional_choice(
     *,
-    data: dict[str, object],
-    name: str,
+    submitted_data: dict[str, object],
+    field_name: str,
     value: str,
 ) -> str:
-    if name in data and not value:
-        raise forms.ValidationError(f"{name} 不能为空。")
+    if field_name in submitted_data and not value:
+        raise forms.ValidationError(f"{field_name} 不能为空。")
     return value

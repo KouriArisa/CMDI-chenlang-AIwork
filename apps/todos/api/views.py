@@ -32,10 +32,13 @@ class JsonApiView(TodoServiceResolverMixin, View):
         self,
         *,
         form_class: type[forms.Form],
-        data: dict[str, object] | QueryDict,
+        submitted_data: dict[str, object] | QueryDict,
     ) -> dict[str, object]:
-        self._raise_for_unknown_fields(form_class=form_class, data=data)
-        form = form_class(data=data)
+        self._raise_for_unknown_fields(
+            form_class=form_class,
+            submitted_data=submitted_data,
+        )
+        form = form_class(data=submitted_data)
         if form.is_valid():
             return dict(form.cleaned_data)
         raise RequestValidationError(details=form.errors.get_json_data())
@@ -44,9 +47,11 @@ class JsonApiView(TodoServiceResolverMixin, View):
         self,
         *,
         form_class: type[forms.Form],
-        data: dict[str, object] | QueryDict,
+        submitted_data: dict[str, object] | QueryDict,
     ) -> None:
-        unknown_fields = sorted(set(data.keys()) - set(form_class.base_fields))
+        unknown_fields = sorted(
+            set(submitted_data.keys()) - set(form_class.base_fields)
+        )
         if not unknown_fields:
             return
         raise RequestValidationError(
@@ -59,19 +64,28 @@ class TodoCollectionApiView(JsonApiView):
     http_method_names = ["get", "post"]
 
     def get(self, request: HttpRequest):
-        query_data = self.validate_form(form_class=TodoListQueryForm, data=request.GET)
+        query_params = self.validate_form(
+            form_class=TodoListQueryForm,
+            submitted_data=request.GET,
+        )
         todo_query = TodoQuery(
-            status=query_data.get("status") or None,
-            priority=query_data.get("priority") or None,
+            status=query_params.get("status") or None,
+            priority=query_params.get("priority") or None,
         )
         todos = self.service.list_todos(query=todo_query)
-        data = {"items": serialize_todo_list(todos), "count": len(todos)}
-        return success_response(data=data)
+        response_payload = {
+            "items": serialize_todo_list(todos),
+            "count": len(todos),
+        }
+        return success_response(data=response_payload)
 
     def post(self, request: HttpRequest):
         payload = self.parse_json_body(request)
-        cleaned_data = self.validate_form(form_class=TodoCreateForm, data=payload)
-        todo = self.service.create_todo(payload=cleaned_data)
+        validated_payload = self.validate_form(
+            form_class=TodoCreateForm,
+            submitted_data=payload,
+        )
+        todo = self.service.create_todo(payload=validated_payload)
         return success_response(
             data=serialize_todo(todo),
             message="待办事项创建成功。",
@@ -99,11 +113,14 @@ class TodoDetailApiView(JsonApiView):
 
     def _update(self, *, request: HttpRequest, todo_id: int):
         payload = self.parse_json_body(request)
-        cleaned_data = self.validate_form(form_class=TodoUpdateForm, data=payload)
-        updates = {field: cleaned_data[field] for field in payload}
-        if not updates:
+        validated_payload = self.validate_form(
+            form_class=TodoUpdateForm,
+            submitted_data=payload,
+        )
+        changes = {field: validated_payload[field] for field in payload}
+        if not changes:
             raise RequestValidationError(message="至少提供一个可更新字段。")
-        todo = self.service.update_todo(todo_id=todo_id, payload=updates)
+        todo = self.service.update_todo(todo_id=todo_id, payload=changes)
         return success_response(data=serialize_todo(todo), message="待办事项更新成功。")
 
 
